@@ -1,28 +1,52 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import api from './services/api';
 
 import "./styles.css";
 
 function App() {
+  const [repositories, setRepositories] = useState([]);
+
+  useEffect(() => {
+    if(repositories.length > 0) return;
+    async function getRepositories() {
+      const response = await api.get('/repositories');
+      setRepositories(response.data);
+    }
+    getRepositories();
+  },[]);
+
   async function handleAddRepository() {
-    // TODO
+    const repository = {
+      url: "https://github.com/Rocketseat/unform",
+      title: "Unform",
+      techs: ["React", "ReactNative", "TypeScript", "ContextApi"]
+    };
+
+    const response = await api.post('/repositories',  repository );
+
+    setRepositories([...repositories, response.data]);
   }
 
   async function handleRemoveRepository(id) {
-    // TODO
+    await api.delete(`/repositories/${id}`);
+    const repos = repositories.filter(repository => repository.id !== id);
+    setRepositories(repos);
   }
 
   return (
     <div>
       <ul data-testid="repository-list">
-        <li>
-          Repositório 1
-
-          <button onClick={() => handleRemoveRepository(1)}>
-            Remover
-          </button>
-        </li>
+        {repositories.length > 0 && (
+          repositories.map(repository => (
+            <li key={repository.id}>
+             {repository.title}
+              <button onClick={() => handleRemoveRepository(repository.id)}>
+                Remover
+              </button>
+            </li>
+          ))
+        )}
       </ul>
-
       <button onClick={handleAddRepository}>Adicionar</button>
     </div>
   );
