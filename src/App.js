@@ -7,7 +7,6 @@ function App() {
   const [repositories, setRepositories] = useState([]);
 
   useEffect(() => {
-    if(repositories.length > 0) return;
     async function getRepositories() {
       const response = await api.get('/repositories');
       setRepositories(response.data);
